@@ -1,72 +1,118 @@
 import { useState } from "react";
 
-function App() {
-  const [inputState, setInputState] = useState({
-    titulo: "",
-    fecha: "",
-    nota: "",
-    limpiar: "",
-  });
+const App = () => {
 
-  const handleResetClick = (v) =>{
-    setInputState({titulo: "",
-    fecha: "",
-    nota: "",
-    limpiar: "", });
-  };
+// hook -> use .....
+//state -> useState
 
-  const handleInputChange = (event) => {
-    //console.log(event.target);
-    setInputState({ ...inputState, [event.target.name]: event.target.value, });
-    console.log(event.target);
-  };
-  
-  return (
-    <div className="App m-4">
-      <h3>hola soy herminia , bienvenidos a mis notas</h3>
-      <label htmlFor="titulo" className="pe-4">
-        Titulo{" "}
-      </label>
-      <input
-        id="titulo"
-        name="titulo"
-        type="text"
-        onChange={handleInputChange}
-        value={inputState.titulo}
-      />
-      <br />
-      <br />
-      <label htmlFor="fecha" className="pe-4">
-        Fecha{" "}
-      </label>
-      <input
-        id="fecha"
-        name="fecha"
-        type="text"
-        onChange={handleInputChange}
-        value={inputState.fecha}
-      />
-      <br />
-      <br />
-      <label htmlFor="nota" className="pe-4">
-        Nota
-      </label>
-      <input
-        id="nota"
-        name="nota"
-        type="text"
-        onChange={handleInputChange}
-        value={inputState.nota}
-      />
-      <br />
-      <br />
-      <center>
-      <button className="btn btn-primary me-2" onClick={handleResetClick}>Reset</button>
-      </center>
-      <br />
-      <center>
-      </center>
-    </div>
-  );
+const[inputsState, setInputsState] = useState({
+title:"",
+date:"",
+note:""
+});
+let inicialState = JSON.parse(localStorage.getItem("notas")) || [];
+const [notas,setNotas] = useState(inicialState)
+const handleInputChange = (event) => { 
+setInputsState({...inputsState,[event.target.name]:event.target.value});
+};
+
+const handleClickLimpiar = (event) =>{ 
+setInputsState({title:"",
+date:"",
+note:""});
+
+};
+const handleClickGuardar = () =>{
+setNotas([...notas, inputsState])
+localStorage.setItem("notas",JSON.stringify(notas));
+handleClickLimpiar();
+};
+const handleRemoveNote = (index) =>{
+const nuevoArreglo = []
+notas.forEach((nota, i) => {
+if(index !== i ){
+nuevoArreglo.push(nota);
 }
+});
+localStorage.setItem("notas", JSON.stringify(nuevoArreglo));
+setNotas(nuevoArreglo);
+};
+
+return (
+<div className="App container">
+<div className="row">
+<div className="col">
+<h3>lista</h3>
+<ul>
+{notas.map((nota, index) => {
+return(
+<li key={index}>
+{nota.title}({nota.date}) {nota.note} &nbsp;
+<i className="bi-x-circle" onClick={() => handleRemoveNote(index)} 
+style={{ 
+color: "red", 
+cursor: "pointer", 
+fontSize: "0.75rem"}}></i>
+</li>
+);
+})}
+</ul>
+</div>
+<div className="col">
+<h3>Notas</h3>
+<label className="mb-2" style={{width:"100%"}}></label>
+<label style={{width:"100%"}}>Titulo
+<input
+id="title" 
+name="title" 
+type="text" 
+onChange={handleInputChange}
+value={inputsState.title}
+style={{width:"100%"}}
+/>
+</label>
+<br />
+<label className="mb-2" style={{width:"100%"}}>Fecha
+<input 
+id="date" 
+name="date" 
+type="date" 
+onChange={handleInputChange}
+value={inputsState.date}
+style={{width:"100%"}}
+/>
+</label >
+<br />
+<label style={{width:"100%"}}>Nota
+<textarea 
+id="note" 
+name="note" 
+type="text" 
+onChange={handleInputChange}
+value={inputsState.note}
+style={{width:"100%"}}
+/>
+</label>
+<hr />
+<div className="row">
+<span className="col">
+<button className="btn btn-primary me-2" 
+onClick={handleClickLimpiar} 
+style={{width:"100%"}}
+>limpiar</button>
+</span>
+<span className="col">
+<button
+type="button"
+className="btn btn-primary"
+onClick={handleClickGuardar}
+style={{whith:"100%"}}>Guardar</button>
+</span>
+</div>
+</div>
+</div>
+</div>
+);
+};
+
 export default App;
