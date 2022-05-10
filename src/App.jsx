@@ -1,118 +1,183 @@
 import { useState } from "react";
 
-const App = () => {
 
-// hook -> use .....
-//state -> useState
-
-const[inputsState, setInputsState] = useState({
-title:"",
-date:"",
-note:""
-});
-let inicialState = JSON.parse(localStorage.getItem("notas")) || [];
-const [notas,setNotas] = useState(inicialState)
-const handleInputChange = (event) => { 
-setInputsState({...inputsState,[event.target.name]:event.target.value});
+function App() {
+  //todo: presentar el concepto de "state"
+  
+  //hooks
+ const [inputState, setInputState] = useState({
+   titulo:"",
+   fecha:"",
+   nota:"",
+ });//valor inicial del state
+ const initialState= JSON.parse(localStorage.getItem("notas"))||[];
+ const [notas, setNotas] = useState(initialState)
+ 
+  const handleInputChange = (event) => {
+    //console.log(event.target.);
+    setInputState({
+      ...inputState,
+      [event.target.name]: event.target.value,
+    });
+  };
+  const handleResetBorrar= () => {
+    setInputState({
+      ...inputState,
+    titulo: "", 
+    fecha: "", 
+    nota: ""
+  });
 };
 
-const handleClickLimpiar = (event) =>{ 
-setInputsState({title:"",
-date:"",
-note:""});
 
-};
-const handleClickGuardar = () =>{
-setNotas([...notas, inputsState])
-localStorage.setItem("notas",JSON.stringify(notas));
-handleClickLimpiar();
-};
-const handleRemoveNote = (index) =>{
-const nuevoArreglo = []
-notas.forEach((nota, i) => {
-if(index !== i ){
-nuevoArreglo.push(nota);
+
+  const handleResetGuardar = () => {
+    const nuevoArreglo = [...notas, inputState]
+    setNotas([...nuevoArreglo]);
+    localStorage.setItem("notas", JSON.stringify(nuevoArreglo));
+    handleResetBorrar();
+  };
+
+  const handleBorrarTodo=()=>{
+    setNotas([])
+    localStorage.setItem("notas", JSON.stringify([]));
+  }
+
+  const handleBorrarNota=(index)=>{
+    const NuevoArreglo = []
+
+    console.log(index)
+    
+    
+    notas.forEach((nota, i)=>{
+      if(index !== i){
+        NuevoArreglo.push(nota)
+      }
+    });
+    localStorage.setItem("notas", JSON.stringify(NuevoArreglo));
+    setNotas([...NuevoArreglo]);
+  }
+
+   return (
+    <div className="App container">
+      <div className="row">
+        <div className="col">
+          <h3>Lista</h3>
+          <frame scrolling="yes">
+          {
+            notas.length===0 &&
+            "Al momento no tienes notas guardadas. Puedes crear una en el formulario"
+          }
+            {
+            notas.length !== 0 && (
+              <ol>
+                {notas.map((item, index)=>{
+                  return(
+                    <li key={index}>
+                      {item.titulo}({item.fecha})&nbsp;&nbsp;&nbsp;
+                      <i
+                      className="bi-x-circle-fill"
+                      onClick={()=>handleBorrarNota(index)}
+                      style={{color:"grey", fontSize:"1rem", cursor:"pointer",}}
+                      ></i>
+                      <br />
+                      {item.nota}
+                      
+                    </li>
+                  )
+                })}
+              </ol>
+            )
+          }
+          </frame>
+          
+          <br />
+          
+          <button
+               type="button"
+               className="btn btn-secondary"
+               onClick={handleBorrarTodo}
+               style={{width: "100%"}}
+               disabled={
+                 notas.length===0
+               }
+          >Borrar Todo</button>
+        </div>
+        <div className="col">
+         <h3>Notas</h3><br></br>
+         <label className="mb-2"  style={{width: "100%"}}>
+          Titulo
+         <input 
+           id="titulo" 
+           name="titulo" 
+           type="text"
+           onChange={handleInputChange}
+           value={inputState.titulo}
+           style={{width: "100%"}}
+           />
+           </label>
+           <br/>
+           <label className="mb-2"style={{width: "100%"}}>
+            Fecha 
+            <input 
+            id="fecha" 
+            name="fecha" 
+            type="date"
+            onChange={handleInputChange}
+            value={inputState.fecha}
+            style={{width: "100%"}}
+            />
+            </label>
+            <br/>
+            <label className="bm-2"style={{width: "100%"}}>
+             Nota 
+             <textarea 
+             id="nota" 
+             name="nota" 
+             onChange={handleInputChange}
+             value={inputState.nota}
+             style={{width: "100%"}}
+             />
+            </label>
+            <hr></hr>
+      <div className="ms-2 me-2 mt-2 row">
+
+      <div className="col">
+        <span className="row me-1">
+          <button
+            type="button"
+            className="btn btn-secondary"
+            onClick={handleResetBorrar}
+            disabled={inputState.titulo===""||
+                      inputState.fecha===""||
+                      inputState.nota===""}
+          >
+            Limpiar
+          </button>
+          </span>
+        </div>
+
+        <div className="col">
+          <span className="row ms-1">
+          
+          <button 
+            type="button"
+            className="btn btn-secondary"
+            onClick={handleResetGuardar}
+            disabled={inputState.titulo===""||
+                      inputState.fecha===""||
+                      inputState.nota===""}
+            >
+            Guardar
+          </button>
+          </span>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
-});
-localStorage.setItem("notas", JSON.stringify(nuevoArreglo));
-setNotas(nuevoArreglo);
-};
-
-return (
-<div className="App container">
-<div className="row">
-<div className="col">
-<h3>lista</h3>
-<ul>
-{notas.map((nota, index) => {
-return(
-<li key={index}>
-{nota.title}({nota.date}) {nota.note} &nbsp;
-<i className="bi-x-circle" onClick={() => handleRemoveNote(index)} 
-style={{ 
-color: "red", 
-cursor: "pointer", 
-fontSize: "0.75rem"}}></i>
-</li>
-);
-})}
-</ul>
-</div>
-<div className="col">
-<h3>Notas</h3>
-<label className="mb-2" style={{width:"100%"}}></label>
-<label style={{width:"100%"}}>Titulo
-<input
-id="title" 
-name="title" 
-type="text" 
-onChange={handleInputChange}
-value={inputsState.title}
-style={{width:"100%"}}
-/>
-</label>
-<br />
-<label className="mb-2" style={{width:"100%"}}>Fecha
-<input 
-id="date" 
-name="date" 
-type="date" 
-onChange={handleInputChange}
-value={inputsState.date}
-style={{width:"100%"}}
-/>
-</label >
-<br />
-<label style={{width:"100%"}}>Nota
-<textarea 
-id="note" 
-name="note" 
-type="text" 
-onChange={handleInputChange}
-value={inputsState.note}
-style={{width:"100%"}}
-/>
-</label>
-<hr />
-<div className="row">
-<span className="col">
-<button className="btn btn-primary me-2" 
-onClick={handleClickLimpiar} 
-style={{width:"100%"}}
->limpiar</button>
-</span>
-<span className="col">
-<button
-type="button"
-className="btn btn-primary"
-onClick={handleClickGuardar}
-style={{whith:"100%"}}>Guardar</button>
-</span>
-</div>
-</div>
-</div>
-</div>
-);
-};
 
 export default App;
